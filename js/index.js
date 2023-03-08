@@ -294,30 +294,30 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     form();
 
-    /* 
     // Tabs
     function tabs () {
         const tabsBtn = document.querySelectorAll('.tabs-button'),
-                tabs = document.querySelectorAll('.work-tab');
-    
+                tabs = document.querySelectorAll('.tab-item');
         if ( tabsBtn.length > 0 ) {
-            tabsBtn[0].classList.add('_active');
-            tabsBtn[0].classList.add('icon-arrow-next');
-            tabs[0].classList.add('_active');
-
-            tabsBtn.forEach((btn, i) => btn.addEventListener('click', (e) => {
-                tabsBtn.forEach(otherBtn => {
-                    otherBtn.classList.remove('_active');
-                    otherBtn.classList.remove('icon-arrow-next')
-                } );
-                btn.classList.add('_active');
-                btn.classList.add('icon-arrow-next');
-                tabs.forEach(tab => tab.classList.remove('_active'));
-                tabs[i].classList.add('_active');
-            }));
+            tabsBtn.forEach(btn => btn.classList.remove('active'));
+            if (tabs.length > 0) {
+                tabs.forEach(tab => tab.classList.remove('active'));
+                tabsBtn[5].classList.add('active');
+                tabs[5].classList.add('active');
+                tabsBtn.forEach(btn => btn.addEventListener('click', () => {
+                    tabsBtn.forEach(other => other.classList.remove('active'));
+                    tabs.forEach(other => other.classList.remove('active'));
+                    btn.classList.add('active');
+                    tabs.forEach(tab => {
+                        if(tab.dataset.tab == btn.dataset.tab) {
+                            tab.classList.add('active');
+                        }
+                    });
+                }));
+            }
         }   
     }
-    tabs(); */
+    tabs(); 
 
 
 

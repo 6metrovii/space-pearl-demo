@@ -56,11 +56,30 @@ window.addEventListener('DOMContentLoaded', () => {
               menuIcon = document.querySelector('.menu-icon'),
               downloadBtn = document.querySelector("#download"),
               whitePaperBtn = document.querySelectorAll('#whitepaper'),
-              buyNftBtn = document.querySelector('#nft');
-        
+              buyNftBtn = document.querySelector('#nft'),
+              tipWhitePaper = document.querySelector('#link-paper'),
+              tipSite = document.querySelector('#link-site'),
+              tipNft = document.querySelector('#link-nft');
+
         let slideIndex = 0;
 
         showSection(slideIndex);
+
+        if(tipWhitePaper) tipWhitePaper.addEventListener('click', () => {
+            whitepaperScreen.classList.add('active');
+            slideIndex = 0;
+            activeHeaderLink();
+        });
+        if(tipNft) tipNft.addEventListener('click', () => {
+            slideIndex = 5;
+            showSection(slideIndex);
+            activeHeaderLink();
+        });
+        if(tipSite) tipSite.addEventListener('click', () => {
+            slideIndex = 0;
+            showSection(slideIndex);
+            activeHeaderLink();
+        })
 
         if(headerLinks.length > 0)  headerLinks.forEach((item, i)=> {
             item.addEventListener("click", (e) => {
@@ -72,9 +91,14 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
                 if( e.target == headerLinks[headerLinks.length - 1]) {
                     whitepaperScreen.classList.add('active');
+                    headerLinks.forEach(link => {
+                        link.classList.remove("active");
+                    });
+                    headerLinks[headerLinks.length - 1].classList.add('active')
                 } else {
                     slideIndex = 2 + i;
-                    showSection(slideIndex)
+                    showSection(slideIndex);
+                    activeHeaderLink();
                 }
             });
         });
@@ -87,14 +111,18 @@ window.addEventListener('DOMContentLoaded', () => {
             whitepaperScreen.classList.remove('active');
             slideIndex = 0;
             showSection(slideIndex);
+            headerLinks.forEach(link => {
+                link.classList.remove("active");
+            });
         }) 
         if (downloadBtn) downloadBtn.addEventListener('click' , () => {
-            console.log('re')
             slideIndex = sections.length - 1;
             showSection(slideIndex);
         }) ;
         if (buyNftBtn) buyNftBtn.addEventListener('click' , () => {
-            console.log('buyNft')
+            slideIndex = 5;
+            showSection(slideIndex);
+            activeHeaderLink();
         });
         if (whitePaperBtn.length > 0) whitePaperBtn.forEach(item =>  {
             item.addEventListener('click' , () => {
@@ -106,7 +134,18 @@ window.addEventListener('DOMContentLoaded', () => {
             if (slideIndex >= sections.length - 1) slideIndex = 0;
             else slideIndex++;
             showSection(slideIndex);
+            activeHeaderLink();
         }));
+
+        function activeHeaderLink () {
+            headerLinks.forEach(link => {
+                link.classList.remove("active");
+            });
+            if ( slideIndex >= 2 && slideIndex !== 7) {
+                headerLinks[slideIndex - 2].classList.add('active')
+            }
+            
+        }
 
         function showSection(i) {
             sections.forEach(sec => {
@@ -119,101 +158,143 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     fullScrinSections();
 
-   /*
-    // scroll to section 
-    function scrollToSections () {
-        const menuLinks = document.querySelectorAll('.header-link'),
-            menuIcon = document.querySelector('.menu-icon'),
-            header = document.querySelector('.header'),
-            fullScrinSections = document.querySelectorAll('section'),
-            headerHeight = header.offsetHeight;
+   //  slider
+    function slider () {
+        const sliders = document.querySelectorAll('._slider');
+        if (sliders.length > 0) { 
 
-        if (menuLinks.length > 0 ) menuLinks.forEach(link => link.addEventListener('click',scrollToSection));
+            sliders.forEach(slider =>  {
 
-        function scrollToSection (e) {
-            const navLink = e.target;
-            if (navLink.dataset.goto && document.querySelector(navLink.dataset.goto)) {
-                const gotoBlock = document.querySelector(navLink.dataset.goto);
-                const gotoBlockValue = gotoBlock.getBoundingClientRect().top + pageYOffset;
-                window.scrollTo({
-                    top: gotoBlockValue,
-                    behavior: "smooth"
+                const slides = slider.querySelectorAll("._slide"),  
+                      prev = slider.querySelector("._slide-prew"),  
+                      next = slider.querySelector("._slide-next"),  
+                      slidesWrapper = slider.querySelector("._slider-wrapper"),  
+                      slidesField = slider.querySelector("._slider-field"),     
+                      dotsWrapper = slider.querySelector('._slider-dots'),
+                      width = parseInt(window.getComputedStyle(slidesWrapper).width); 
+
+                let slideIndex = 1; 
+                let offset = 0;  
+
+                if (dotsWrapper) {
+                    for(let i = 0; i < slides.length; i++) {
+                        const dot = document.createElement('div');
+
+                        dot.classList.add('slider-dot')
+                        dotsWrapper.append(dot);
+                    }
+                } 
+                if (slides) slides.forEach(slide => slide.style.width = width);
+                if (next) next.addEventListener('click', nextSlide);
+                if (prev) prev.addEventListener('click', prevSlide);
+                if (slidesField) {
+                    slidesField.style.display = "flex";
+                    slidesField.style.width = 100 * slides.length  + '%';   
+                    slidesField.style.transition = 'all 0.7s ease'; 
+                }   
+                
+                const dots = slider.querySelectorAll('.slider-dot');
+
+                activeDot();
+
+                function prevSlide () {
+                    if (offset == 0) {      
+                        offset = width * (slides.length -1);  
+                    } else {
+                        offset = offset - width; 
+                    }
+                    slidesField.style.transform = `translateX(-${offset}px)`;  
+                    
+                    if (slideIndex == 1) {            
+                        slideIndex = slides.length;
+                    } else {
+                        slideIndex--;              
+                    }
+                    activeDot();
+                }
+                
+                function nextSlide () {
+                    if (offset == width * (slides.length -1)) {      
+                        offset = 0;                       
+                    } else {
+                        offset = offset + width;  
+                    }
+                    slidesField.style.transform = `translateX(-${offset}px)`;
+                    
+                    if (slideIndex == slides.length) {          
+                        slideIndex = 1;
+                    } else {
+                        slideIndex++;                          
+                    }
+                    activeDot();
+                } 
+                
+                function activeDot () {
+                    if (dots.length > 0) {
+                        dots.forEach(dot => dot.classList.remove('active'));
+                        dots[slideIndex - 1].classList.add('active');
+                    }
+                }
+            });
+        }
+        
+    }
+    slider();
+    
+    // tips 
+
+    // form
+    function form () {
+        const form = document.forms[0],
+              formMessage = form.querySelector('.form-message'),
+              inputName = form.formName,
+              inputMail = form.formMail;
+
+        let namePlaceholder = inputName.placeholder;
+        let malePlaceholder = inputMail.placeholder;
+
+        hoverPlaceholder(inputName, namePlaceholder);
+        hoverPlaceholder(inputMail, malePlaceholder);
+
+        form.addEventListener('submit', sendForm);
+
+        function sendForm (e) {
+            e.preventDefault();
+            form.reset();
+            const formData = new FormData(form);
+            formMessage.classList.add('active');
+                setTimeout(() => {
+                    formMessage.classList.remove('active');
+                },4000)
+
+            const url = 'send.php';
+
+            /* fetch(url, {
+                method: Get,
+                body: formData,
+            }).then(responce =>  {
+            }).catch(error => {
+                formMessage.textContent = "An error occurred while sending the message :("
+                console.log(error.message)
+            }) */
+        }
+
+        function hoverPlaceholder (input , placeholder) {
+            if (input) {
+                input.addEventListener('focus', () => {
+                    input.placeholder = ""
+                    input.classList.add('focus');
+                });
+                input.addEventListener('blur', () => {
+                    input.placeholder = placeholder;
+                    input.classList.remove('focus');
                 });
             }
-            menuIcon.classList.remove('active')
-            header.classList.remove('active');
-            document.body.classList.remove('_lock');
-            e.preventDefault();
-
-            if (document.body.classList.contains('touch')) {
-                menuLinks.forEach((item, i) => {
-                    if (item == e.target) {
-                        fullScrinSections.forEach(section => {
-                        section.style.transition = "all 0.6s ease";
-                        section.classList.add('_section-hide');
-                        });
-                        fullScrinSections[i + 1].classList.remove('_section-hide');
-                        fullScrinSections[i + 1].classList.add('_section-show');
-                    }
-                })
-                
-            }
         }
     }
-    scrollToSections();
-      
-    //  slider
-    function slider () {
-        const slides = document.querySelectorAll(".slide"),  
-                prev = document.querySelector(".prew-button"),  
-                next = document.querySelector(".next-button"),  
-                slidesWrapper = document.querySelector(".slide-wrapper"),  
-                slidesField = document.querySelector(".slide-field"),     
-                width = parseInt(window.getComputedStyle(slidesWrapper).width); 
+    form();
 
-        let slideIndex = 1; 
-        let offset = 0;  
-
-        if (slides) slides.forEach(slide => slide.style.width = width);
-        if (next) next.addEventListener('click', nextSlide);
-        if (prev) prev.addEventListener('click', prevSlide);
-        if (slidesField) {
-            slidesField.style.width = 100 * slides.length  + '%';   
-            slidesField.style.transition = 'all 0.7s ease'; 
-            }           
-
-        function prevSlide () {
-            if (offset == 0) {      
-                offset = width * (slides.length -1);  
-            } else {
-                offset = offset - width; 
-            }
-            slidesField.style.transform = `translateX(-${offset}px)`;  
-            
-            if (slideIndex == 1) {            
-                slideIndex = slides.length;
-            } else {
-                slideIndex--;              
-            }
-        }
-
-        function nextSlide () {
-            if (offset == width * (slides.length -1)) {      
-                offset = 0;                       
-            } else {
-                offset = offset + width;  
-            }
-            slidesField.style.transform = `translateX(-${offset}px)`;
-            
-            if (slideIndex == slides.length) {          
-                slideIndex = 1;
-            } else {
-                slideIndex++;                          
-            }
-        } 
-    }
-    slider(); 
-    
+    /* 
     // Tabs
     function tabs () {
         const tabsBtn = document.querySelectorAll('.tabs-button'),
